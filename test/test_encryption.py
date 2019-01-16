@@ -3,8 +3,13 @@ import os
 import pipes
 import pytest
 
+KEY_FILE = 'test/test_key'
+KEY_FINGERPRINT = 'F8BBFC746C58945442349BCEBA54FFD04C599B1A'
+KEY_NAME = 'yadm-test1'
+KEY_TRUST = 'test/ownertrust.txt'
 PASSPHRASE = 'ExamplePassword'
 
+pytestmark = pytest.mark.usefixtures('config_git')
 # Coverage:
 # [X] "Command 'encrypt' (missing YADM_ENCRYPT)"
 # [X] "Command 'encrypt' (mismatched password)"
@@ -23,19 +28,41 @@ PASSPHRASE = 'ExamplePassword'
 # [X] "Command 'decrypt' (overwrite)"
 # [X] "Command 'decrypt' -l"
 #
-# [ ] "Command 'encrypt' (asymmetric, missing key)"
-# [ ] "Command 'encrypt' (asymmetric)"
-# [ ] "Command 'encrypt' (asymmetric, overwrite)"
-# [ ] "Command 'encrypt' (asymmetric, ask)"
+# [X] "Command 'encrypt' (asymmetric, missing key)"
+# [X] "Command 'encrypt' (asymmetric)"
+# [X] "Command 'encrypt' (asymmetric, overwrite)"
+# [X] "Command 'encrypt' (asymmetric, ask)"
 #
-# [ ] "Command 'decrypt' (asymmetric, missing YADM_ARCHIVE)"
-# [ ] "Command 'decrypt' (asymmetric, missing key)"
-# [ ] "Command 'decrypt' -l (asymmetric, missing key)"
-# [ ] "Command 'decrypt' (asymmetric)"
-# [ ] "Command 'decrypt' (asymmetric, overwrite)"
-# [ ] "Command 'decrypt' -l (asymmetric)"
+# [X] "Command 'decrypt' (asymmetric, missing YADM_ARCHIVE)"
+# [X] "Command 'decrypt' (asymmetric, missing key)"
+# [X] "Command 'decrypt' -l (asymmetric, missing key)"
+# [X] "Command 'decrypt' (asymmetric)"
+# [X] "Command 'decrypt' (asymmetric, overwrite)"
+# [X] "Command 'decrypt' -l (asymmetric)"
 #
 # [ ] "Command 'encrypt' (offer to track YADM_ENCRYPT) NEW"
+
+
+def add_asymmetric_key():
+    """Add asymmetric key"""
+    os.system(f'gpg --import {pipes.quote(KEY_FILE)}')
+    os.system(f'gpg --import-ownertrust < {pipes.quote(KEY_TRUST)}')
+
+
+def remove_asymmetric_key():
+    """Remove asymmetric key"""
+    os.system(
+        f'gpg --batch --yes '
+        f'--delete-secret-keys {pipes.quote(KEY_FINGERPRINT)}')
+    os.system(f'gpg --batch --yes --delete-key {pipes.quote(KEY_FINGERPRINT)}')
+
+
+@pytest.fixture
+def asymmetric_key():
+    """Fixture for asymmetric key, removed in teardown"""
+    add_asymmetric_key()
+    yield KEY_NAME
+    remove_asymmetric_key()
 
 
 @pytest.fixture
@@ -102,12 +129,13 @@ def decrypt_targets(tmpdir_factory, runner):
     """Fixture for setting data to decrypt
 
     This fixture:
-      * creates an encrypted archive
+      * creates symmetric/asymmetric encrypted archives
       * creates a list of expected decrypted files
     """
 
     tmpdir = tmpdir_factory.mktemp('decrypt_targets')
-    archive = tmpdir.join('archive.tar.gz.gpg')
+    symmetric = tmpdir.join('symmetric.tar.gz.gpg')
+    asymmetric = tmpdir.join('asymmetric.tar.gz.gpg')
 
     expected = []
 
@@ -122,15 +150,32 @@ def decrypt_targets(tmpdir_factory, runner):
     run = runner(
         ['tar', 'cvf', '-'] +
         expected +
-        ['|', 'gpg', '--yes', '-c'] +
+        ['|', 'gpg', '--batch', '--yes', '-c'] +
         ['--passphrase', pipes.quote(PASSPHRASE)] +
-        ['--output', pipes.quote(str(archive))],
+        ['--output', pipes.quote(str(symmetric))],
         cwd=tmpdir,
         shell=True)
     run.report()
     assert run.code == 0
 
-    return {'archive': archive, 'expected': expected}
+    add_asymmetric_key()
+    run = runner(
+        ['tar', 'cvf', '-'] +
+        expected +
+        ['|', 'gpg', '--batch', '--yes', '-e'] +
+        ['-r', pipes.quote(KEY_NAME)] +
+        ['--output', pipes.quote(str(asymmetric))],
+        cwd=tmpdir,
+        shell=True)
+    run.report()
+    assert run.code == 0
+    remove_asymmetric_key()
+
+    return {
+        'asymmetric': asymmetric,
+        'expected': expected,
+        'symmetric': symmetric,
+    }
 
 
 @pytest.mark.parametrize(
@@ -183,15 +228,12 @@ def test_symmetric_encrypt(
     'archive_exists', [True, False],
     ids=['archive_exists', 'archive_missing'])
 @pytest.mark.parametrize(
-    'overwrite', [False, True],
-    ids=['clean', 'overwrite'])
-@pytest.mark.parametrize(
     'dolist', [False, True],
     ids=['decrypt', 'list'])
 def test_symmetric_decrypt(
         runner, yadm_y, paths, decrypt_targets,
-        dolist, overwrite, archive_exists, wrong_phrase):
-    """Test symmetric decryption"""
+        dolist, archive_exists, wrong_phrase):
+    """Test decryption"""
 
     # init empty yadm repo
     os.system(' '.join(yadm_y('init', '-w', str(paths.work), '-f')))
@@ -201,24 +243,23 @@ def test_symmetric_decrypt(
         phrase = 'wrong-phrase'
 
     if archive_exists:
-        decrypt_targets['archive'].copy(paths.archive)
+        decrypt_targets['symmetric'].copy(paths.archive)
 
-    if overwrite:
-        paths.work.join('decrypt1').write('pre-existing file')
+    # to test overwriting
+    paths.work.join('decrypt1').write('pre-existing file')
 
     args = []
+
     if dolist:
         args.append('-l')
-    run = runner(yadm_y('decrypt') + args, expect=[
-        ('passphrase:', phrase)
-        ])
+    run = runner(yadm_y('decrypt') + args, expect=[('passphrase:', phrase)])
     run.report()
 
     if archive_exists and not wrong_phrase:
         assert run.code == 0
         if dolist:
             for filename in decrypt_targets['expected']:
-                if not overwrite or filename != 'decrypt1':
+                if filename != 'decrypt1':  # this one should exist
                     assert not paths.work.join(filename).exists()
                 assert filename in run.out
         else:
@@ -226,6 +267,94 @@ def test_symmetric_decrypt(
                 assert paths.work.join(filename).read() == filename
     else:
         assert run.code == 1
+
+
+@pytest.mark.usefixtures('asymmetric_key')
+@pytest.mark.parametrize(
+    'ask', [False, True],
+    ids=['no_ask', 'ask'])
+@pytest.mark.parametrize(
+    'key_exists', [True, False],
+    ids=['key_exists', 'key_missing'])
+@pytest.mark.parametrize(
+    'overwrite', [False, True],
+    ids=['clean', 'overwrite'])
+def test_asymmetric_encrypt(
+        runner, yadm_y, paths, encrypt_targets,
+        overwrite, key_exists, ask):
+    """Test asymmetric encryption"""
+
+    # specify encryption recipient
+    if ask:
+        os.system(' '.join(yadm_y('config', 'yadm.gpg-recipient', 'ASK')))
+        expect = [('Enter the user ID', KEY_NAME), ('Enter the user ID', '')]
+    else:
+        os.system(' '.join(yadm_y('config', 'yadm.gpg-recipient', KEY_NAME)))
+        expect = []
+
+    if overwrite:
+        paths.archive.write('existing archive')
+
+    if not key_exists:
+        remove_asymmetric_key()
+
+    run = runner(yadm_y('encrypt'), expect=expect)
+    run.report()
+
+    if key_exists:
+        assert run.code == 0
+        assert encrypted_data_valid(runner, paths.archive, encrypt_targets)
+    else:
+        assert run.code == 1
+        assert 'Unable to write' in run.out
+
+    if ask:
+        assert 'Enter the user ID' in run.out
+
+
+@pytest.mark.usefixtures('asymmetric_key')
+@pytest.mark.parametrize(
+    'key_exists', [True, False],
+    ids=['key_exists', 'key_missing'])
+@pytest.mark.parametrize(
+    'dolist', [False, True],
+    ids=['decrypt', 'list'])
+def test_asymmetric_decrypt(
+        runner, yadm_y, paths, decrypt_targets,
+        dolist, key_exists):
+    """Test decryption"""
+
+    # init empty yadm repo
+    os.system(' '.join(yadm_y('init', '-w', str(paths.work), '-f')))
+
+    decrypt_targets['asymmetric'].copy(paths.archive)
+
+    # to test overwriting
+    paths.work.join('decrypt1').write('pre-existing file')
+
+    if not key_exists:
+        remove_asymmetric_key()
+
+    args = []
+
+    if dolist:
+        args.append('-l')
+    run = runner(yadm_y('decrypt') + args)
+    run.report()
+
+    if key_exists:
+        assert run.code == 0
+        if dolist:
+            for filename in decrypt_targets['expected']:
+                if filename != 'decrypt1':  # this one should exist
+                    assert not paths.work.join(filename).exists()
+                assert filename in run.out
+        else:
+            for filename in decrypt_targets['expected']:
+                assert paths.work.join(filename).read() == filename
+    else:
+        assert run.code == 1
+        assert 'Unable to extract encrypted files' in run.out
 
 
 def encrypted_data_valid(runner, encrypted, expected):
