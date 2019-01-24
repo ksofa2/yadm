@@ -10,37 +10,6 @@ KEY_TRUST = 'test/ownertrust.txt'
 PASSPHRASE = 'ExamplePassword'
 
 pytestmark = pytest.mark.usefixtures('config_git')
-# Coverage:
-# [X] "Command 'encrypt' (missing YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (mismatched password)"
-# [X] "Command 'encrypt'"
-# [X] "Command 'encrypt' (comments in YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (empty lines and space lines in YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (paths with spaces/globs in YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (exclusions in YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (directories in YADM_ENCRYPT)"
-# [X] "Command 'encrypt' (overwrite)"
-#
-# [X] "Command 'decrypt' (missing YADM_ARCHIVE)"
-# [X] "Command 'decrypt' (wrong password)"
-# [X] "Command 'decrypt' -l (wrong password)"
-# [X] "Command 'decrypt'"
-# [X] "Command 'decrypt' (overwrite)"
-# [X] "Command 'decrypt' -l"
-#
-# [X] "Command 'encrypt' (asymmetric, missing key)"
-# [X] "Command 'encrypt' (asymmetric)"
-# [X] "Command 'encrypt' (asymmetric, overwrite)"
-# [X] "Command 'encrypt' (asymmetric, ask)"
-#
-# [X] "Command 'decrypt' (asymmetric, missing YADM_ARCHIVE)"
-# [X] "Command 'decrypt' (asymmetric, missing key)"
-# [X] "Command 'decrypt' -l (asymmetric, missing key)"
-# [X] "Command 'decrypt' (asymmetric)"
-# [X] "Command 'decrypt' (asymmetric, overwrite)"
-# [X] "Command 'decrypt' -l (asymmetric)"
-#
-# [ ] "Command 'encrypt' (offer to track YADM_ENCRYPT) NEW"
 
 
 def add_asymmetric_key():
@@ -355,6 +324,54 @@ def test_asymmetric_decrypt(
     else:
         assert run.code == 1
         assert 'Unable to extract encrypted files' in run.out
+
+
+@pytest.mark.parametrize(
+    'untracked',
+    [False, 'y', 'n'],
+    ids=['tracked', 'untracked_answer_y', 'untracked_answer_n'])
+def test_offer_to_add(runner, yadm_y, paths, encrypt_targets, untracked):
+    """Test offer to add encrypted archive
+
+    All the other encryption tests use an archive outside of the work tree.
+    However, the archive is often inside the work tree, and if it is, there
+    should be an offer to add it to the repo if it is not tracked.
+    """
+
+    worktree_archive = paths.work.join('worktree-archive.tar.gpg')
+    expect = [
+        ('passphrase:', PASSPHRASE),
+        ('passphrase:', PASSPHRASE),
+        ]
+
+    if untracked:
+        expect.append(('add it now', untracked))
+    else:
+        worktree_archive.write('exists')
+        os.system(' '.join(yadm_y('add', str(worktree_archive))))
+
+    run = runner(
+        yadm_y('encrypt', '--yadm-archive', str(worktree_archive)),
+        expect=expect
+        )
+    run.report()
+
+    assert run.code == 0
+    assert encrypted_data_valid(runner, worktree_archive, encrypt_targets)
+
+    run = runner(
+        yadm_y('status', '--porcelain', '-uall', str(worktree_archive)))
+    run.report()
+
+    if untracked == 'y':
+        # should be added to the index
+        assert f'A  {worktree_archive.basename}' in run.out
+    elif untracked == 'n':
+        # should NOT be added to the index
+        assert f'?? {worktree_archive.basename}' in run.out
+    else:
+        # should appear modified in the index
+        assert f'AM {worktree_archive.basename}' in run.out
 
 
 def encrypted_data_valid(runner, encrypted, expected):
