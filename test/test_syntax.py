@@ -1,5 +1,4 @@
 """Syntax checks"""
-
 import os
 import pytest
 

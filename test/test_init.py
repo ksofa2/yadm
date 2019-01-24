@@ -1,5 +1,4 @@
 """Test init"""
-
 import pytest
 
 

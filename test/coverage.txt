@@ -29,7 +29,7 @@ Track which tests have been implemented using pytest
 [✓] test/118_accept_assert_private_dirs.bats
 
 [✓] check for use of uname running directly in tests
-[ ] check for imports included in functions
+[✓] check for imports included in functions
 [ ] improved yadm enter tests for variable shells
 [ ] examine use of os.system vs runner
 [ ] examine config writing, and ensure it's done uniformly
