@@ -2,13 +2,6 @@
 import pytest
 
 
-@pytest.fixture(scope='module')
-def uname(runner):
-    """Value of `uname -s`"""
-    run = runner(command=['uname', '-s'])
-    return run.out.rstrip()
-
-
 @pytest.mark.parametrize(
     'proc_value, expected_os', [
         ('missing', 'uname'),
@@ -20,7 +13,7 @@ def uname(runner):
         '/proc/version excludes MS',
     ])
 def test_set_operating_system(
-        runner, paths, uname, proc_value, expected_os):
+        runner, paths, tst_sys, proc_value, expected_os):
     """Run ,set_operating_system and test result"""
     proc_version = paths.root.join('proc_version')
     if proc_value != 'missing':
@@ -35,5 +28,5 @@ def test_set_operating_system(
     print(script)
     run.report()
     if expected_os == 'uname':
-        expected_os = uname
+        expected_os = tst_sys
     assert run.out.rstrip() == expected_os
