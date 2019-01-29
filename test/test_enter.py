@@ -1,7 +1,7 @@
 """Test enter"""
 import os
-import pytest
 import warnings
+import pytest
 
 
 @pytest.mark.parametrize(
