@@ -1,4 +1,5 @@
 """Unit tests: yadm.[git,gpg]-program"""
+import os
 import pytest
 
 
@@ -18,13 +19,9 @@ def test_x_program(runner, paths, program, executable, code, value, match):
 
     # set configuration
     if executable:
-        runner(command=[
-            'git',
-            'config',
-            f'--file={paths.config}',
-            f'yadm.{program}-program',
-            executable,
-        ]).report()
+        os.system(
+            f'git config --file="{paths.config}" '
+            f'yadm.{program}-program "{executable}"')
 
     # test require_[git,gpg]
     script = f"""

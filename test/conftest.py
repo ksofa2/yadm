@@ -203,20 +203,14 @@ def runner():
 
 
 @pytest.fixture(scope='session')
-def config_git(runner):
+def config_git():
     """Configure global git configuration, if missing"""
-    runner(command=[
-        'bash',
-        '-c',
+    os.system(
         'git config user.name || '
-        'git config --global user.name "test"',
-        ])
-    runner(command=[
-        'bash',
-        '-c',
+        'git config --global user.name "test"')
+    os.system(
         'git config user.email || '
-        'git config --global user.email "test@test.test"',
-        ])
+        'git config --global user.email "test@test.test"')
     return None
 
 
@@ -451,9 +445,13 @@ def ds1_dset(tst_sys, cygwin_sys):
 
 
 @pytest.fixture(scope='session')
-def ds1_data(tmpdir_factory, ds1_dset, runner):
+def ds1_data(tmpdir_factory, config_git, ds1_dset, runner):
     """A set of test data, worktree & repo"""
-    config_git(runner)
+    # pylint: disable=unused-argument
+    # This is ignored because
+    # @pytest.mark.usefixtures('config_git')
+    # cannot be applied to another fixture.
+
     data = tmpdir_factory.mktemp('ds1')
 
     work = data.mkdir('work')

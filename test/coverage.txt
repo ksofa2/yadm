@@ -31,9 +31,10 @@ Track which tests have been implemented using pytest
 [✓] check for use of uname running directly in tests
 [✓] check for imports included in functions
 [✓] improved yadm enter tests for variable shells
-[ ] examine use of os.system vs runner
+[✓] examine use of os.system vs runner
 [ ] examine config writing, and ensure it's done uniformly
 [✓] drive introspect tests with fixtures like supported_configs()
 [ ] review inspections of run.out, for additional tests of run.err
-[ ] unify ordering of code/err/out assertions
+[ ] unify ordering/use of code/err/out, run.success/run.fail assertions
+[ ] unify running of run.report()
 [ ] review all tests, improve comments for anything unclear
