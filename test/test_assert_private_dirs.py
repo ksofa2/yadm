@@ -1,4 +1,5 @@
 """Test asserting private directories"""
+import os
 import re
 import pytest
 
@@ -57,10 +58,8 @@ def test_pdirs_missing_apd_false(runner, yadm_y, paths):
         assert not path.exists()
 
     # set configuration
-    run = runner(command=yadm_y(
-        'config', '--bool', 'yadm.auto-private-dirs', 'false'))
-    run.report()
-    assert run.code == 0
+    os.system(' '.join(yadm_y(
+        'config', '--bool', 'yadm.auto-private-dirs', 'false')))
 
     # run status
     run = runner(command=yadm_y('status'))
@@ -91,10 +90,8 @@ def test_pdirs_exist_apd_false(runner, yadm_y, paths):
         assert oct(path.stat().mode).endswith('77'), 'Directory is secure.'
 
     # set configuration
-    run = runner(command=yadm_y(
-        'config', '--bool', 'yadm.auto-perms', 'false'))
-    run.report()
-    assert run.code == 0
+    os.system(' '.join(yadm_y(
+        'config', '--bool', 'yadm.auto-perms', 'false')))
 
     # run status
     run = runner(command=yadm_y('status'))

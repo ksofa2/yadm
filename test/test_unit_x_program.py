@@ -14,14 +14,14 @@ import pytest
         'invalid alternative',
     ])
 @pytest.mark.parametrize('program', ['git', 'gpg'])
-def test_x_program(runner, paths, program, executable, code, value, match):
+def test_x_program(
+        runner, yadm_y, paths, program, executable, code, value, match):
     """Set yadm.X-program, and test result of require_X"""
 
     # set configuration
     if executable:
-        os.system(
-            f'git config --file="{paths.config}" '
-            f'yadm.{program}-program "{executable}"')
+        os.system(' '.join(yadm_y(
+            'config', f'yadm.{program}-program', executable)))
 
     # test require_[git,gpg]
     script = f"""
