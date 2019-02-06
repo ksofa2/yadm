@@ -6,20 +6,20 @@ def test_not_called(runner, paths):
     """Test parse_encrypt (not called)"""
     run = run_parse_encrypt(runner, paths, skip_parse=True)
     run.report()
+    assert run.success
+    assert run.err == ''
     assert 'EIF:unparsed' in run.out, 'EIF should be unparsed'
     assert 'EIF_COUNT:1' in run.out, 'Only value of EIF should be unparsed'
-    assert run.code == 0
-    assert run.err == ''
 
 
 def test_short_circuit(runner, paths):
     """Test parse_encrypt (short-circuit)"""
     run = run_parse_encrypt(runner, paths, twice=True)
     run.report()
+    assert run.success
+    assert run.err == ''
     assert 'PARSE_ENCRYPT_SHORT=parse_encrypt() not reprocessed' in run.out, (
         'parse_encrypt() should short-circuit')
-    assert run.code == 0
-    assert run.err == ''
 
 
 @pytest.mark.parametrize(
@@ -41,11 +41,11 @@ def test_empty(runner, paths, encrypt):
     # run parse_encrypt
     run = run_parse_encrypt(runner, paths)
     run.report()
+    assert run.success
+    assert run.err == ''
 
     # validate parsing result
     assert 'EIF_COUNT:0' in run.out, 'EIF should be empty'
-    assert run.code == 0
-    assert run.err == ''
 
 
 @pytest.mark.usefixtures('ds1_repo_copy')
@@ -133,12 +133,12 @@ def test_file_parse_encrypt(runner, paths):
     # run parse_encrypt
     run = run_parse_encrypt(runner, paths)
     run.report()
+    assert run.success
+    assert run.err == ''
 
     assert f'EIF_COUNT:{len(expected)}' in run.out, 'EIF count wrong'
     for expected_file in expected:
         assert f'EIF:{expected_file}\n' in run.out
-    assert run.code == 0
-    assert run.err == ''
 
 
 def run_parse_encrypt(
@@ -166,6 +166,5 @@ def run_parse_encrypt(
             echo "EIF:$value"
         done
     """
-    print(script)
     run = runner(command=['bash'], inp=script)
     return run

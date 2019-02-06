@@ -34,17 +34,17 @@ def test_hooks(
     # run yadm
     run = runner(yadm_y('version'))
     run.report()
+    # when a pre hook fails, yadm should exit with the hook's code
+    assert run.code == pre_code
+    assert run.err == ''
 
     if pre:
         assert 'HOOK:pre_version' in run.out
     # if pre hook is missing or successful, yadm itself should exit 0
-    if pre_code == 0:
-        assert run.code == 0
+    if run.success:
         if post:
             assert 'HOOK:post_version' in run.out
     else:
-        # when a pre hook fails, yadm should exit with the hook's code
-        assert run.code == pre_code
         # when a pre hook fails, yadm should not run the command
         assert 'version will not be run' in run.out
         # when a pre hook fails, yadm should not run the post hook
@@ -69,8 +69,8 @@ def test_hook_env(runner, yadm_y, paths):
     run.report()
 
     # expect passthru to fail
+    assert run.failure
     assert f"'{cmd}' is not a git command" in run.err
-    assert run.code == 1
 
     # verify hook environment
     assert 'YADM_HOOK_EXIT=1\n' in run.out

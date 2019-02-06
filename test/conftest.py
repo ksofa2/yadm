@@ -171,9 +171,11 @@ class Runner(object):
     def report(self):
         """Print code/stdout/stderr"""
         print(f'{self}')
-        print(f'  code:{self.code}')
-        print(f'  stdout:{self.out}')
-        print(f'  stderr:{self.err}')
+        print(f'  RUN: code:{self.code}')
+        if self.inp:
+            print(f'  RUN: input:\n{self.inp}')
+        print(f'  RUN: stdout:\n{self.out}')
+        print(f'  RUN: stderr:\n{self.err}')
 
     def wrap(self, expect):
         """Wrap command with expect"""

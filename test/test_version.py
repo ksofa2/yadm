@@ -31,4 +31,5 @@ def test_reported_version(
     run = runner(command=yadm_y('version'))
     run.report()
     assert run.success
+    assert run.err == ''
     assert run.out == f'yadm {expected_version}\n'

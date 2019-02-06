@@ -21,7 +21,7 @@ def test_introspect_category(
         run = runner(command=yadm_y('introspect'))
     run.report()
 
-    assert run.code == 0
+    assert run.success
     assert run.err == ''
 
     expected = []

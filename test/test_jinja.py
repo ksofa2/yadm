@@ -11,7 +11,7 @@ def envtpl_present(runner):
     try:
         run = runner(command=['envtpl', '-h'])
         run.report()
-        if run.code == 0:
+        if run.success:
             return True
     except BaseException:
         pass
@@ -43,7 +43,7 @@ def test_local_override(runner, yadm_y, paths,
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
     run.report()
-    assert run.code == 0
+    assert run.success
     assert run.err == ''
     created = created_list(run.out)
 
@@ -77,7 +77,7 @@ def test_auto_alt(runner, yadm_y, paths, autoalt, tst_sys,
     # run status to possibly trigger linking
     run = runner(yadm_y('status'))
     run.report()
-    assert run.code == 0
+    assert run.success
     assert run.err == ''
     created = created_list(run.out)
 
@@ -110,9 +110,8 @@ def test_jinja_envtpl_missing(runner, paths):
     utils.create_alt_files(paths, '##yadm.j2')
 
     run = runner(command=['bash'], inp=script)
-    print(script)
     run.report()
-    assert run.code == 0
+    assert run.success
     assert run.err == ''
     assert f'envtpl not available, not creating' in run.out
 
@@ -162,7 +161,7 @@ def test_jinja(runner, yadm_y, paths,
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
     run.report()
-    assert run.code == 0
+    assert run.success
     assert run.err == ''
     created = created_list(run.out)
 

@@ -25,8 +25,9 @@ def test_set_operating_system(
         echo $OPERATING_SYSTEM
     """
     run = runner(command=['bash'], inp=script)
-    print(script)
     run.report()
+    assert run.success
+    assert run.err == ''
     if expected_os == 'uname':
         expected_os = tst_sys
     assert run.out.rstrip() == expected_os

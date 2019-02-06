@@ -4,10 +4,10 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    'executable, code, value, match', [
-        (None, 0, 'program', None),
-        ('cat', 0, 'cat', None),
-        ('badprogram', 1, None, 'badprogram'),
+    'executable, success, value, match', [
+        (None, True, 'program', None),
+        ('cat', True, 'cat', None),
+        ('badprogram', False, None, 'badprogram'),
     ], ids=[
         'executable missing',
         'valid alternative',
@@ -15,7 +15,7 @@ import pytest
     ])
 @pytest.mark.parametrize('program', ['git', 'gpg'])
 def test_x_program(
-        runner, yadm_y, paths, program, executable, code, value, match):
+        runner, yadm_y, paths, program, executable, success, value, match):
     """Set yadm.X-program, and test result of require_X"""
 
     # set configuration
@@ -31,11 +31,9 @@ def test_x_program(
         echo ${program.upper()}_PROGRAM
     """
     run = runner(command=['bash'], inp=script)
-
-    print(script)
     run.report()
-    # correct exit code
-    assert run.code == code
+    assert run.success == success
+    assert run.err == ''
 
     # [GIT,GPG]_PROGRAM set correctly
     if value == 'program':

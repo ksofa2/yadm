@@ -27,4 +27,5 @@ def test_bootstrap(
     run = runner(command=yadm_y('bootstrap'))
     run.report()
     assert run.code == code
+    assert run.err == ''
     assert expect in run.out

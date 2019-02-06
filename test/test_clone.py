@@ -53,12 +53,14 @@ def test_clone(
 
     if not good_remote:
         # clone should fail
-        assert run.code == 1
+        assert run.failure
+        assert run.err != ''
         assert 'Unable to fetch origin' in run.out
         assert not paths.repo.exists()
     elif repo_exists and not force:
         # can't overwrite data
-        assert run.code == 1
+        assert run.failure
+        assert run.err == ''
         assert 'Git repo already exists' in run.out
     else:
         # clone should succeed, and repo should be configured properly
@@ -75,7 +77,8 @@ def test_clone(
             command=('git', 'remote', '-v', 'show'),
             env={'GIT_DIR': paths.repo})
         run.report()
-        assert run.code == 0
+        assert run.success
+        assert run.err == ''
         assert f'origin\t{remote_url}' in run.out
 
         # ensure conflicts are really preserved
@@ -85,16 +88,22 @@ def test_clone(
                 command=yadm_y('status', '-uno', '--porcelain'),
                 cwd=paths.work)
             run.report()
+            assert run.success
+            assert run.err == ''
             assert run.out == '', 'worktree has unexpected changes'
 
             # test to see if the conflicts are stashed
             run = runner(command=yadm_y('stash', 'list'), cwd=paths.work)
             run.report()
+            assert run.success
+            assert run.err == ''
             assert 'Conflicts preserved' in run.out, 'conflicts not stashed'
 
             # verify content of the stashed conflicts
             run = runner(command=yadm_y('stash', 'show', '-p'), cwd=paths.work)
             run.report()
+            assert run.success
+            assert run.err == ''
             assert '\n+conflict' in run.out, 'conflicts not stashed'
 
     # another force-related assertion

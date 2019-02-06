@@ -5,11 +5,11 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    'shell, expected_code', [
-        ('delete', 0),
-        ('', 1),
-        ('/usr/bin/env', 0),
-        ('noexec', 1),
+    'shell, success', [
+        ('delete', True),
+        ('', False),
+        ('/usr/bin/env', True),
+        ('noexec', False),
     ], ids=[
         'missing',
         'empty',
@@ -17,7 +17,7 @@ import pytest
         'not executable',
     ])
 @pytest.mark.usefixtures('ds1_copy')
-def test_enter(runner, yadm_y, paths, shell, expected_code):
+def test_enter(runner, yadm_y, paths, shell, success):
     """Enter tests"""
     env = os.environ.copy()
     if shell == 'delete':
@@ -32,9 +32,10 @@ def test_enter(runner, yadm_y, paths, shell, expected_code):
         env['SHELL'] = shell
     run = runner(command=yadm_y('enter'), env=env)
     run.report()
-    assert run.code == expected_code
+    assert run.success == success
+    assert run.err == ''
     prompt = f'yadm shell ({paths.repo})'
-    if expected_code == 0:
+    if success:
         assert run.out.startswith('Entering yadm repo')
         assert run.out.rstrip().endswith('Leaving yadm repo')
         if shell == 'delete':
@@ -45,7 +46,7 @@ def test_enter(runner, yadm_y, paths, shell, expected_code):
             assert f'PROMPT={prompt}' in run.out
             assert f'PS1={prompt}' in run.out
             assert f'GIT_DIR={paths.repo}' in run.out
-    if expected_code == 1:
+    if not success:
         assert 'does not refer to an executable' in run.out
     if 'env' in shell:
         assert f'GIT_DIR={paths.repo}' in run.out
@@ -77,6 +78,7 @@ def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path):
 
     run = runner(command=yadm_y('enter'), env=env)
     run.report()
-    assert run.code == 0
+    assert run.success
+    assert run.err == ''
     assert f'OPTS={opts}' in run.out
     assert f'PROMPT=yadm shell ({paths.repo}) {path} >' in run.out
