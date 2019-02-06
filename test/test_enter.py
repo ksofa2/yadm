@@ -31,7 +31,6 @@ def test_enter(runner, yadm_y, paths, shell, success):
     else:
         env['SHELL'] = shell
     run = runner(command=yadm_y('enter'), env=env)
-    run.report()
     assert run.success == success
     assert run.err == ''
     prompt = f'yadm shell ({paths.repo})'
@@ -77,7 +76,6 @@ def test_enter_shell_ops(runner, yadm_y, paths, shell, opts, path):
     env['SHELL'] = custom_shell
 
     run = runner(command=yadm_y('enter'), env=env)
-    run.report()
     assert run.success
     assert run.err == ''
     assert f'OPTS={opts}' in run.out

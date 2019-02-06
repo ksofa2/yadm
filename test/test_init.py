@@ -51,7 +51,6 @@ def test_init(
 
     # run init
     run = runner(yadm_y(*args), env={'HOME': home})
-    run.report()
     assert run.err == ''
 
     if repo_present and not force:

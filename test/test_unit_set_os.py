@@ -25,7 +25,6 @@ def test_set_operating_system(
         echo $OPERATING_SYSTEM
     """
     run = runner(command=['bash'], inp=script)
-    run.report()
     assert run.success
     assert run.err == ''
     if expected_os == 'uname':

@@ -23,7 +23,6 @@ def test_list(runner, yadm_y, paths, ds1, location):
         # test with '-a'
         # should get all tracked files, relative to the work path
         run = runner(command=yadm_y('list', '-a'))
-        run.report()
         assert run.success
         assert run.err == ''
         returned_files = set(run.out.splitlines())
@@ -34,7 +33,6 @@ def test_list(runner, yadm_y, paths, ds1, location):
         # subdir, then those should be a limited set of files, relative to the
         # subdir
         run = runner(command=yadm_y('list'))
-        run.report()
         assert run.success
         assert run.err == ''
         returned_files = set(run.out.splitlines())

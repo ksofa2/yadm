@@ -5,7 +5,6 @@ import pytest
 def test_not_called(runner, paths):
     """Test parse_encrypt (not called)"""
     run = run_parse_encrypt(runner, paths, skip_parse=True)
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'EIF:unparsed' in run.out, 'EIF should be unparsed'
@@ -15,7 +14,6 @@ def test_not_called(runner, paths):
 def test_short_circuit(runner, paths):
     """Test parse_encrypt (short-circuit)"""
     run = run_parse_encrypt(runner, paths, twice=True)
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'PARSE_ENCRYPT_SHORT=parse_encrypt() not reprocessed' in run.out, (
@@ -40,7 +38,6 @@ def test_empty(runner, paths, encrypt):
 
     # run parse_encrypt
     run = run_parse_encrypt(runner, paths)
-    run.report()
     assert run.success
     assert run.err == ''
 
@@ -132,7 +129,6 @@ def test_file_parse_encrypt(runner, paths):
 
     # run parse_encrypt
     run = run_parse_encrypt(runner, paths)
-    run.report()
     assert run.success
     assert run.err == ''
 

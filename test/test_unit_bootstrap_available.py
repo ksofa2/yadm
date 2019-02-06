@@ -28,7 +28,6 @@ def run_test(runner, paths, success):
         bootstrap_available
     """
     run = runner(command=['bash'], inp=script)
-    run.report()
     assert run.success == success
     assert run.err == ''
     assert run.out == ''

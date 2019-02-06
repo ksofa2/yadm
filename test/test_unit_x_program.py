@@ -31,7 +31,6 @@ def test_x_program(
         echo ${program.upper()}_PROGRAM
     """
     run = runner(command=['bash'], inp=script)
-    run.report()
     assert run.success == success
     assert run.err == ''
 

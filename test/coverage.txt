@@ -38,5 +38,5 @@ Track which tests have been implemented using pytest
 [✓] unify ordering/use of code/err/out, run.success/run.fail assertions
 [✓] unify running of run.report()
 [ ] strip .out && .err in runner, and a parameter to turn that off
-[ ] make run.report a default side-effect, and a parameter to turn it off
+[✓] make run.report a default side-effect, and a parameter to turn it off
 [ ] review all tests, improve comments for anything unclear

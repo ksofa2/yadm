@@ -50,7 +50,6 @@ def test_cygwin_copy(
     env['PATH'] = ':'.join([str(uname_path), env['PATH']])
 
     run = runner(yadm_y('alt'), env=env)
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'Linking' in run.out

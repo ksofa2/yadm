@@ -78,7 +78,6 @@ def test_alt(runner, yadm_y, paths,
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -170,7 +169,6 @@ def test_wild(request, runner, yadm_y, paths,
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -188,7 +186,6 @@ def test_wild(request, runner, yadm_y, paths,
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -221,7 +218,6 @@ def test_local_override(runner, yadm_y, paths,
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -254,7 +250,6 @@ def test_class_case(runner, yadm_y, paths, tst_sys, suffix):
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -282,7 +277,6 @@ def test_auto_alt(runner, yadm_y, paths, autoalt):
 
     # run status to possibly trigger linking
     run = runner(yadm_y('status'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)
@@ -312,7 +306,6 @@ def test_delimiter(runner, yadm_y, paths,
 
     # run alt to trigger linking
     run = runner(yadm_y('alt'))
-    run.report()
     assert run.success
     assert run.err == ''
     linked = linked_list(run.out)

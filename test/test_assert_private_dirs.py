@@ -24,7 +24,6 @@ def test_pdirs_missing(runner, yadm_y, paths):
 
     # run status
     run = runner(command=yadm_y('status'), env={'DEBUG': 'yes'})
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out
@@ -64,7 +63,6 @@ def test_pdirs_missing_apd_false(runner, yadm_y, paths):
 
     # run status
     run = runner(command=yadm_y('status'))
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out
@@ -97,7 +95,6 @@ def test_pdirs_exist_apd_false(runner, yadm_y, paths):
 
     # run status
     run = runner(command=yadm_y('status'))
-    run.report()
     assert run.success
     assert run.err == ''
     assert 'On branch master' in run.out

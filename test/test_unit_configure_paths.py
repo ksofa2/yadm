@@ -73,7 +73,6 @@ def run_test(runner, paths, args, expected_matches, expected_code=0):
         declare -p | grep -E '(YADM|GIT)_'
     """
     run = runner(command=['bash'], inp=script)
-    run.report()
     assert run.code == expected_code
     assert run.err == ''
     for match in expected_matches:

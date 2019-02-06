@@ -19,7 +19,6 @@ def test_introspect_category(
         run = runner(command=yadm_y('introspect', name))
     else:
         run = runner(command=yadm_y('introspect'))
-    run.report()
 
     assert run.success
     assert run.err == ''

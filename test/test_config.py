@@ -18,7 +18,6 @@ def test_config_no_params(runner, yadm_y, supported_configs):
     """
 
     run = runner(yadm_y('config'))
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -35,7 +34,6 @@ def test_config_read_missing(runner, yadm_y):
     """
 
     run = runner(yadm_y('config', TEST_KEY))
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -51,7 +49,6 @@ def test_config_write(runner, yadm_y, paths):
     """
 
     run = runner(yadm_y('config', TEST_KEY, TEST_VALUE))
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -68,7 +65,6 @@ def test_config_read(runner, yadm_y, paths):
 
     paths.config.write(TEST_FILE)
     run = runner(yadm_y('config', TEST_KEY))
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -86,7 +82,6 @@ def test_config_update(runner, yadm_y, paths):
     paths.config.write(TEST_FILE)
 
     run = runner(yadm_y('config', TEST_KEY, TEST_VALUE + 'extra'))
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -112,7 +107,6 @@ def test_config_local_read(runner, yadm_y, paths, supported_local_configs):
     # run yadm config
     for config in supported_local_configs:
         run = runner(yadm_y('config', config))
-        run.report()
         assert run.success
         assert run.err == ''
         assert run.out.strip() == f'value_of_{config}'
@@ -130,7 +124,6 @@ def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
     # run yadm config
     for config in supported_local_configs:
         run = runner(yadm_y('config', config, f'value_of_{config}'))
-        run.report()
         assert run.success
         assert run.err == ''
         assert run.out == ''
@@ -140,7 +133,6 @@ def test_config_local_write(runner, yadm_y, paths, supported_local_configs):
         run = runner(
             command=('git', 'config', config),
             env={'GIT_DIR': paths.repo})
-        run.report()
         assert run.success
         assert run.err == ''
         assert run.out.strip() == f'value_of_{config}'

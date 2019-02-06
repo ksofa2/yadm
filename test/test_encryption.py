@@ -124,7 +124,6 @@ def decrypt_targets(tmpdir_factory, runner):
         ['--output', pipes.quote(str(symmetric))],
         cwd=tmpdir,
         shell=True)
-    run.report()
     assert run.success
 
     add_asymmetric_key()
@@ -136,7 +135,6 @@ def decrypt_targets(tmpdir_factory, runner):
         ['--output', pipes.quote(str(asymmetric))],
         cwd=tmpdir,
         shell=True)
-    run.report()
     assert run.success
     remove_asymmetric_key()
 
@@ -175,7 +173,6 @@ def test_symmetric_encrypt(
         ('passphrase:', PASSPHRASE),
         ('passphrase:', matched_phrase),
         ])
-    run.report()
 
     if missing_encrypt or mismatched_phrase:
         assert run.failure
@@ -223,7 +220,6 @@ def test_symmetric_decrypt(
     if dolist:
         args.append('-l')
     run = runner(yadm_y('decrypt') + args, expect=[('passphrase:', phrase)])
-    run.report()
 
     if archive_exists and not wrong_phrase:
         assert run.success
@@ -270,7 +266,6 @@ def test_asymmetric_encrypt(
         remove_asymmetric_key()
 
     run = runner(yadm_y('encrypt'), expect=expect)
-    run.report()
 
     if key_exists:
         assert run.success
@@ -311,7 +306,6 @@ def test_asymmetric_decrypt(
     if dolist:
         args.append('-l')
     run = runner(yadm_y('decrypt') + args)
-    run.report()
 
     if key_exists:
         assert run.success
@@ -356,7 +350,6 @@ def test_offer_to_add(runner, yadm_y, paths, encrypt_targets, untracked):
         yadm_y('encrypt', '--yadm-archive', str(worktree_archive)),
         expect=expect
         )
-    run.report()
 
     assert run.success
     assert run.err == ''
@@ -364,7 +357,6 @@ def test_offer_to_add(runner, yadm_y, paths, encrypt_targets, untracked):
 
     run = runner(
         yadm_y('status', '--porcelain', '-uall', str(worktree_archive)))
-    run.report()
     assert run.success
     assert run.err == ''
 
@@ -386,7 +378,7 @@ def encrypted_data_valid(runner, encrypted, expected):
         '--passphrase', pipes.quote(PASSPHRASE),
         '-d', pipes.quote(str(encrypted)),
         '2>/dev/null',
-        '|', 'tar', 't'], shell=True)
+        '|', 'tar', 't'], shell=True, report=False)
     file_count = 0
     for filename in run.out.splitlines():
         if filename.endswith('/'):

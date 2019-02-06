@@ -33,7 +33,6 @@ def test_hooks(
 
     # run yadm
     run = runner(yadm_y('version'))
-    run.report()
     # when a pre hook fails, yadm should exit with the hook's code
     assert run.code == pre_code
     assert run.err == ''
@@ -66,7 +65,6 @@ def test_hook_env(runner, yadm_y, paths):
     hook.chmod(0o755)
 
     run = runner(yadm_y(cmd, 'extra_args'))
-    run.report()
 
     # expect passthru to fail
     assert run.failure

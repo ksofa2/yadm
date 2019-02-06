@@ -49,7 +49,6 @@ def test_clone(
         args += ['-f']
     args += [remote_url]
     run = runner(command=yadm_y(*args))
-    run.report()
 
     if not good_remote:
         # clone should fail
@@ -76,7 +75,6 @@ def test_clone(
         run = runner(
             command=('git', 'remote', '-v', 'show'),
             env={'GIT_DIR': paths.repo})
-        run.report()
         assert run.success
         assert run.err == ''
         assert f'origin\t{remote_url}' in run.out
@@ -87,21 +85,18 @@ def test_clone(
             run = runner(
                 command=yadm_y('status', '-uno', '--porcelain'),
                 cwd=paths.work)
-            run.report()
             assert run.success
             assert run.err == ''
             assert run.out == '', 'worktree has unexpected changes'
 
             # test to see if the conflicts are stashed
             run = runner(command=yadm_y('stash', 'list'), cwd=paths.work)
-            run.report()
             assert run.success
             assert run.err == ''
             assert 'Conflicts preserved' in run.out, 'conflicts not stashed'
 
             # verify content of the stashed conflicts
             run = runner(command=yadm_y('stash', 'show', '-p'), cwd=paths.work)
-            run.report()
             assert run.success
             assert run.err == ''
             assert '\n+conflict' in run.out, 'conflicts not stashed'
@@ -145,7 +140,6 @@ def test_clone_bootstrap(
     if answer:
         expect.append(('Would you like to execute it now', answer))
     run = runner(command=yadm_y(*args), expect=expect)
-    run.report()
 
     if answer:
         assert 'Would you like to execute it now' in run.out
@@ -225,7 +219,6 @@ def test_clone_perms(
 
     run = runner(
         yadm_y('clone', '-d', '-w', paths.work, f'file://{paths.remote}'))
-    run.report()
 
     assert successful_clone(run, paths, repo_config)
     if in_work:

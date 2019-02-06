@@ -44,7 +44,7 @@ def tst_distro(runner):
     """Test session's distro"""
     distro = ''
     try:
-        run = runner(command=['lsb_release', '-si'])
+        run = runner(command=['lsb_release', '-si'], report=False)
         distro = run.out.strip()
     except BaseException:
         pass
@@ -136,8 +136,7 @@ class Runner(object):
             cwd=None,
             env=None,
             expect=None,
-            label=None):
-        self.label = label
+            report=True):
         if shell:
             self.command = ' '.join([str(cmd) for cmd in command])
         else:
@@ -162,11 +161,11 @@ class Runner(object):
         self.code = process.wait()
         self.success = self.code == 0
         self.failure = self.code != 0
+        if report:
+            self.report()
 
     def __repr__(self):
-        if self.label:
-            return f'CMD({self.label})'
-        return f'CMD{self.command}'
+        return f'Runner({self.command})'
 
     def report(self):
         """Print code/stdout/stderr"""
@@ -224,7 +223,8 @@ def repo_config(runner, paths):
         """Query a yadm repo configuration value"""
         run = runner(
             command=('git', 'config', '--local', key),
-            env={'GIT_DIR': paths.repo}
+            env={'GIT_DIR': paths.repo},
+            report=False,
             )
         return run.out.rstrip()
 
@@ -464,26 +464,32 @@ def ds1_data(tmpdir_factory, config_git, ds1_dset, runner):
     env = os.environ.copy()
     env['GIT_DIR'] = str(repo)
     runner(
-        command=['git', 'init', '--shared=0600', '--bare', str(repo)])
+        command=['git', 'init', '--shared=0600', '--bare', str(repo)],
+        report=False)
     runner(
         command=['git', 'config', 'core.bare', 'false'],
-        env=env)
+        env=env,
+        report=False)
     runner(
         command=['git', 'config', 'status.showUntrackedFiles', 'no'],
-        env=env)
+        env=env,
+        report=False)
     runner(
         command=['git', 'config', 'yadm.managed', 'true'],
-        env=env)
+        env=env,
+        report=False)
     runner(
         command=['git', 'config', 'core.worktree', str(work)],
-        env=env)
+        env=env,
+        report=False)
     runner(
         command=['git', 'add'] +
         [str(work.join(f.path)) for f in ds1_dset if f.tracked],
-        env=env).report()
+        env=env)
     runner(
         command=['git', 'commit', '--allow-empty', '-m', 'Initial commit'],
-        env=env)
+        env=env,
+        report=False)
 
     data = collections.namedtuple('Data', ['work', 'repo'])
     return data(work, repo)
@@ -506,7 +512,8 @@ def ds1_repo_copy(runner, ds1_data, paths):
     env['GIT_DIR'] = str(paths.repo)
     runner(
         command=['git', 'config', 'core.worktree', str(paths.work)],
-        env=env)
+        env=env,
+        report=False)
     return None
 
 
