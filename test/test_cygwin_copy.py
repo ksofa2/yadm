@@ -1,4 +1,5 @@
 """Test yadm.cygwin_copy"""
+
 import os
 import pytest
 

@@ -1,13 +1,14 @@
 """Unit tests: configure_paths"""
+
 import pytest
 
-HOME = '/testhome'
-YDIR = '.yadm'
-REPO = 'repo.git'
-CONFIG = 'config'
-ENCRYPT = 'encrypt'
 ARCHIVE = 'files.gpg'
 BOOTSTRAP = 'bootstrap'
+CONFIG = 'config'
+ENCRYPT = 'encrypt'
+HOME = '/testhome'
+REPO = 'repo.git'
+YDIR = '.yadm'
 
 
 @pytest.mark.parametrize(

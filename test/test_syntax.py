@@ -1,9 +1,10 @@
 """Syntax checks"""
+
 import os
 import pytest
 
 
-def test_syntax(runner, yadm):
+def test_yadm_syntax(runner, yadm):
     """Is syntactically valid"""
     run = runner(command=['bash', '-n', yadm])
     assert run.success

@@ -1,4 +1,5 @@
 """Test introspect"""
+
 import pytest
 
 
@@ -36,7 +37,10 @@ def test_introspect_category(
         assert run.out == ''
     if name == 'repo':
         assert run.out.rstrip() == paths.repo
+
+    # make sure every expected value is present
     for value in expected:
         assert value in run.out
+    # make sure nothing extra is present
     if expected:
         assert len(run.out.split()) == len(expected)

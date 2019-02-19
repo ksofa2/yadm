@@ -1,4 +1,8 @@
-"""Testing Utilities"""
+"""Testing Utilities
+
+This module holds values/functions common to multiple tests.
+"""
+
 import os
 
 ALT_FILE1 = 'test_alt'
@@ -17,7 +21,12 @@ def create_alt_files(paths, suffix,
                      preserve=False, tracked=True,
                      encrypt=False, exclude=False,
                      content=None):
-    """Create new file, and add to the repo"""
+    """Create new files, and add to the repo
+
+    This is used for testing alternate files. In each case, a suffix is
+    appended to two standard file paths. Particulars of the file creation and
+    repo handling are dependent upon the function arguments.
+    """
 
     if not preserve:
         if paths.work.join(ALT_FILE1).exists():

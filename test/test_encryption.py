@@ -1,4 +1,5 @@
 """Test encryption"""
+
 import os
 import pipes
 import pytest

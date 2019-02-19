@@ -1,4 +1,5 @@
 """Test alt"""
+
 import os
 import re
 import string
@@ -53,7 +54,13 @@ def test_alt(runner, yadm_y, paths,
              tst_sys, tst_host, tst_user,
              tracked, encrypt, exclude,
              precedence_index):
-    """Test alternate linking"""
+    """Test alternate linking
+
+    This test is done by iterating for the number of templates in PRECEDENCE.
+    With each iteration, another file is left off the list. So with each
+    iteration, the template with the "highest precedence" is left out. The file
+    using the highest precedence should be the one linked.
+    """
 
     # set the class
     tst_class = 'testclass'
@@ -123,7 +130,12 @@ def test_wild(request, runner, yadm_y, paths,
               tracked, encrypt,
               wild_class, wild_host, wild_sys, wild_user,
               template):
-    """Test wild linking"""
+    """Test wild linking
+
+    These tests are done by creating permutations of the possible files using
+    WILD_TEMPLATES. Each case is then tested (while skipping the already tested
+    permutations for efficiency).
+    """
 
     if request.node.name in BROKEN_TEST_IDS:
         pytest.xfail(
@@ -152,7 +164,7 @@ def test_wild(request, runner, yadm_y, paths,
         tst_user=tst_user,
     )
 
-    # skip over dupliate tests (this seems to be the simplest way to cover the
+    # skip over duplicate tests (this seems to be the simplest way to cover the
     # permutations of tests, while skipping duplicates.)
     test_key = f'{tracked}{encrypt}{wild_suffix}{std_suffix}'
     if test_key in WILD_TESTED:
@@ -163,7 +175,7 @@ def test_wild(request, runner, yadm_y, paths,
     # set the class
     utils.set_local(paths, 'class', tst_class)
 
-    # create files using a the wild suffix
+    # create files using the wild suffix
     utils.create_alt_files(paths, wild_suffix, tracked=tracked,
                            encrypt=encrypt, exclude=False)
 
@@ -180,7 +192,7 @@ def test_wild(request, runner, yadm_y, paths,
         assert paths.work.join(file_path).read() == source_file
         assert str(paths.work.join(source_file)) in linked
 
-    # create files using a the standard suffix
+    # create files using the standard suffix
     utils.create_alt_files(paths, std_suffix, tracked=tracked,
                            encrypt=encrypt, exclude=False)
 
@@ -311,7 +323,7 @@ def test_delimiter(runner, yadm_y, paths,
     linked = linked_list(run.out)
 
     # assert the proper linking has occurred
-    # only a delimieter of '.' is valid
+    # only a delimiter of '.' is valid
     for file_path in (utils.ALT_FILE1, utils.ALT_FILE2):
         source_file = file_path + suffix
         if delimiter == '.':

@@ -1,4 +1,5 @@
 """Unit tests: yadm.[git,gpg]-program"""
+
 import os
 import pytest
 

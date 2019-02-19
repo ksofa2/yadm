@@ -1,4 +1,5 @@
-"""Global tests configuration"""
+"""Global tests configuration and fixtures"""
+
 import collections
 import copy
 import distutils.dir_util  # pylint: disable=no-name-in-module,import-error
@@ -65,7 +66,10 @@ def cygwin_sys():
 
 @pytest.fixture(scope='session')
 def supported_commands():
-    """List of supported commands"""
+    """List of supported commands
+
+    This list should be updated every time yadm learns a new command.
+    """
     return [
         'alt',
         'bootstrap',
@@ -87,7 +91,10 @@ def supported_commands():
 
 @pytest.fixture(scope='session')
 def supported_configs():
-    """List of supported config options"""
+    """List of supported config options
+
+    This list should be updated every time yadm learns a new config.
+    """
     return [
         'local.class',
         'local.hostname',
@@ -107,7 +114,10 @@ def supported_configs():
 
 @pytest.fixture(scope='session')
 def supported_switches():
-    """List of supported switches"""
+    """List of supported switches
+
+    This list should be updated every time yadm learns a new switch.
+    """
     return [
         '--yadm-archive',
         '--yadm-bootstrap',
@@ -126,7 +136,17 @@ def supported_local_configs(supported_configs):
 
 
 class Runner(object):
-    """Class for running commands"""
+    """Class for running commands
+
+    Within yadm tests, this object should be used when running commands that
+    require:
+
+      * Acting on the status code
+      * Parsing the output of the command
+      * Passing input to the command
+
+    Other instances of simply running commands should use os.system().
+    """
 
     def __init__(
             self,

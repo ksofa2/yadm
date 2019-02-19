@@ -1,10 +1,11 @@
 """Test clone"""
+
 import os
 import re
 import pytest
 
-BOOTSTRAP_MSG = 'Bootstrap successful'
 BOOTSTRAP_CODE = 123
+BOOTSTRAP_MSG = 'Bootstrap successful'
 
 
 @pytest.mark.usefixtures('remote')
@@ -194,7 +195,7 @@ def create_bootstrap(paths, exists):
 def test_clone_perms(
         runner, yadm_y, paths, repo_config,
         private_type, in_repo, in_work):
-    """Test clone permission related functions"""
+    """Test clone permission-related functions"""
 
     # update remote repo to include private data
     if in_repo:

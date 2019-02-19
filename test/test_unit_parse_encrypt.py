@@ -1,4 +1,5 @@
 """Unit tests: parse_encrypt"""
+
 import pytest
 
 
@@ -47,7 +48,10 @@ def test_empty(runner, paths, encrypt):
 
 @pytest.mark.usefixtures('ds1_repo_copy')
 def test_file_parse_encrypt(runner, paths):
-    """Test parse_encrypt"""
+    """Test parse_encrypt
+
+    Test an array of supported features of the encrypt configuration.
+    """
 
     edata = ''
     expected = set()
@@ -141,7 +145,12 @@ def run_parse_encrypt(
         runner, paths,
         skip_parse=False,
         twice=False):
-    """Run parse_encrypt"""
+    """Run parse_encrypt
+
+    A count of ENCRYPT_INCLUDE_FILES will be reported as EIF_COUNT:X. All
+    values of ENCRYPT_INCLUDE_FILES will be reported as individual EIF:value
+    lines.
+    """
     parse_cmd = 'parse_encrypt'
     if skip_parse:
         parse_cmd = ''

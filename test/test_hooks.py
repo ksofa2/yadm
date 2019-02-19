@@ -1,4 +1,5 @@
 """Test hooks"""
+
 import pytest
 
 
@@ -12,7 +13,7 @@ import pytest
         (True, 0, True, 0),
         (True, 5, True, 5),
     ], ids=[
-        'no hooks',
+        'no-hooks',
         'pre-success',
         'pre-fail',
         'post-success',

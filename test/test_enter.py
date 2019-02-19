@@ -1,4 +1,5 @@
 """Test enter"""
+
 import os
 import warnings
 import pytest
@@ -11,19 +12,21 @@ import pytest
         ('/usr/bin/env', True),
         ('noexec', False),
     ], ids=[
-        'missing',
-        'empty',
-        'env',
-        'not executable',
+        'shell-missing',
+        'shell-empty',
+        'shell-env',
+        'shell-noexec',
     ])
 @pytest.mark.usefixtures('ds1_copy')
 def test_enter(runner, yadm_y, paths, shell, success):
     """Enter tests"""
     env = os.environ.copy()
     if shell == 'delete':
+        # remove shell
         if 'SHELL' in env:
             del env['SHELL']
     elif shell == 'noexec':
+        # specify a non-executable path
         noexec = paths.root.join('noexec')
         noexec.write('')
         noexec.chmod(0o664)

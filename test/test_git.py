@@ -1,4 +1,5 @@
 """Test git"""
+
 import re
 import pytest
 
@@ -15,20 +16,20 @@ def test_git(runner, yadm_y, paths):
     Git command 'log'
     """
 
-    # Passthru unknown commands to Git
+    # passthru unknown commands to Git
     run = runner(command=yadm_y('bogus'))
     assert run.failure
     assert "git: 'bogus' is not a git command." in run.err
     assert "See 'git --help'" in run.err
     assert run.out == ''
 
-    # Git command 'add' - badfile
+    # git command 'add' - badfile
     run = runner(command=yadm_y('add', '-v', 'does_not_exist'))
     assert run.code == 128
     assert "pathspec 'does_not_exist' did not match any files" in run.err
     assert run.out == ''
 
-    # Git command 'add'
+    # git command 'add'
     newfile = paths.work.join('test_git')
     newfile.write('test_git')
     run = runner(command=yadm_y('add', '-v', str(newfile)))
@@ -36,13 +37,13 @@ def test_git(runner, yadm_y, paths):
     assert run.err == ''
     assert "add 'test_git'" in run.out
 
-    # Git command 'status'
+    # git command 'status'
     run = runner(command=yadm_y('status'))
     assert run.success
     assert run.err == ''
     assert re.search(r'new file:\s+test_git', run.out)
 
-    # Git command 'commit'
+    # git command 'commit'
     run = runner(command=yadm_y('commit', '-m', 'Add test_git'))
     assert run.success
     assert run.err == ''
@@ -50,7 +51,7 @@ def test_git(runner, yadm_y, paths):
     assert '1 insertion' in run.out
     assert re.search(r'create mode .+ test_git', run.out)
 
-    # Git command 'log'
+    # git command 'log'
     run = runner(command=yadm_y('log', '--oneline'))
     assert run.success
     assert run.err == ''

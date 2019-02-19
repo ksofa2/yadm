@@ -1,4 +1,5 @@
 """Test asserting private directories"""
+
 import os
 import re
 import pytest
